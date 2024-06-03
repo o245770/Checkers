@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Board extends JPanel {
-    private final int WIDTH = 8, HEIGHT = 8;
+    static final int WIDTH = 8, HEIGHT = 8;
     static final int SQUARE_SIZE = 50;
     private final Square[][] squares = new Square[WIDTH][HEIGHT];
     List<Piece> pieces = new ArrayList<>();
@@ -130,13 +130,16 @@ public class Board extends JPanel {
         //czy pole nie jest zbyt odlegle
         if(newCol!=initialX-1 && newCol!=initialX+1)
         {
-            errorMessage.setText("Za dalekie pole");
-            return false;
-        }
-        if(newRow!=initialY-1 && newRow!=initialY+1)
-        {
-            errorMessage.setText("Za dalekie pole");
-            return false;
+            if(newCol==initialX-2 || newCol==initialX+2)
+            {
+                if(!checkCapture(newRow,newCol)){
+                    errorMessage.setText("Za dalekie pole!");
+                    return false;
+                }
+            }else {
+                errorMessage.setText("Za dalekie pole");
+                return false;
+            }
         }
 
         //czy na polu znajduje się pionek
@@ -149,8 +152,21 @@ public class Board extends JPanel {
             }
         }
 
-
         return true;
+    }
+
+    boolean checkCapture(int newRow, int newCol) {
+        int middleRow = (newRow+initialY)/2;
+        int middleCol = (newCol+initialX)/2;
+        for(Piece piece : pieces)
+        {
+            if(piece.isPieceOnThisPosition(middleCol,middleRow))
+            {
+                pieces.remove(piece);
+                return true;
+            }
+        }
+        return false;
     }
 
     private void drawPieces(Graphics g) {

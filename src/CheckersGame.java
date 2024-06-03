@@ -5,10 +5,10 @@ import java.awt.event.ActionListener;
 
 public class CheckersGame {
     Board board;
-    private long startTime;
-    private Timer timer;
-    private JLabel labelPlayerWhite;
-    private JLabel labelPlayerBlack;
+    final private long startTime;
+    final private Timer timer;
+    private final JLabel labelPlayerWhite;
+    private final JLabel labelPlayerBlack;
 
     public CheckersGame() {
         JFrame window = new JFrame();
@@ -66,8 +66,4 @@ public class CheckersGame {
         labelPlayerBlack.setText("White player's time: " + timeString);
     }
 
-    private void restartGame() {
-        // Logika restartu gry
-        // Możesz dodać tutaj odpowiednie działania do restartu gry
-    }
 }
