@@ -60,6 +60,16 @@ public class Board extends JPanel {
                         int pieceY = piece.getRow() * SQUARE_SIZE + SQUARE_SIZE / 2;
                         int distance = (int) Math.sqrt(Math.pow(pieceX - x, 2) + Math.pow(pieceY - y, 2));
                         if (distance < SQUARE_SIZE / 2) {
+                            if(piece.getColor() == Color.white && turn%2==1) {
+                                errorMessage.setText("To jest kolejka czarnych!");
+                                repaint();
+                                break;
+                            }
+                            if(piece.getColor() == Color.black && turn%2==0) {
+                                errorMessage.setText("To jest kolejka białych!");
+                                repaint();
+                                break;
+                            }
                             selectedPiece = piece;
                             initialX = x/ SQUARE_SIZE;
                             initialY = y/ SQUARE_SIZE;
