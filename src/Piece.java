@@ -4,6 +4,8 @@ public class Piece {
     private int col;
     private int row;
     private Color color;
+
+
     public Piece(int c, int r, Color color) {
         this.col = c;
         this.row = r;
@@ -21,5 +23,12 @@ public class Piece {
     public void setPosition(int x, int y) {
         this.col = x;
         this.row = y;
+    }
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public boolean isPieceOnThisPosition(int x, int y) {
+        return x == this.col && y == this.row;
     }
 }
