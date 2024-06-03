@@ -7,6 +7,8 @@ public class CheckersGame {
     Board board;
     final private long startTime;
     final private Timer timer;
+    long whitePlayersTime;
+    long blackPlayersTime;
     private final JLabel labelPlayerWhite;
     private final JLabel labelPlayerBlack;
 
@@ -38,6 +40,8 @@ public class CheckersGame {
             }
         });
         timer.start();
+        whitePlayersTime = 0;
+        blackPlayersTime = 0;
 
         panel.add(board.turnLabel);
         labelPlayerWhite = new JLabel("Black player's time: 0:00");
@@ -56,14 +60,22 @@ public class CheckersGame {
     private void updateTimeLabels() {
         long elapsedTime = (System.currentTimeMillis() - startTime) / 1000; // Czas od rozpoczęcia gry w sekundach
 
+        if(board.turn%2==0)
+        {
+            whitePlayersTime += 1;
+        }else
+        {
+            blackPlayersTime += 1;
+        }
         // Konwersja czasu na format mm:ss
-        long minutes = elapsedTime / 60;
-        long seconds = elapsedTime % 60;
+        long minutesBlack = blackPlayersTime / 60;
+        long secondsBlack = blackPlayersTime % 60;
+        long minutesWhite = whitePlayersTime / 60;
+        long secondsWhite = whitePlayersTime % 60;
 
         // Aktualizacja etykiet czasu graczy
-        String timeString = String.format("%d:%02d", minutes, seconds);
-        labelPlayerWhite.setText("Black player's time: " + timeString);
-        labelPlayerBlack.setText("White player's time: " + timeString);
+        labelPlayerWhite.setText("Black player's time: " + minutesBlack+':'+secondsBlack);
+        labelPlayerBlack.setText("White player's time: " + minutesWhite+':'+secondsWhite);
     }
 
 }
