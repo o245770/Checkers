@@ -4,12 +4,14 @@ public class Piece {
     private int col;
     private int row;
     private Color color;
+    boolean isKing;
 
 
     public Piece(int c, int r, Color color) {
         this.col = c;
         this.row = r;
         this.color = color;
+        this.isKing = false;
     }
     public int getCol() {
         return col;
@@ -24,11 +26,13 @@ public class Piece {
         this.col = x;
         this.row = y;
     }
-    public void setColor(Color color) {
-        this.color = color;
-    }
 
     public boolean isPieceOnThisPosition(int x, int y) {
         return x == this.col && y == this.row;
+    }
+
+    void changeToKing()
+    {
+        isKing = true;
     }
 }

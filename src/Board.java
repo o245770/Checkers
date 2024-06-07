@@ -68,16 +68,27 @@ public class Board extends JPanel {
                     int newRow = (y/ SQUARE_SIZE);
                     int newCol = (x/ SQUARE_SIZE);
                     if (isValidMove(newRow, newCol)) {
+                        errorMessage.setText("Poprawny ruch, ("+ newRow+' ' + newCol+")");
+                        selectedPiece.setPosition(newCol, newRow);
+
+                        changeToKing(newRow);
+
                         if(currentPlayer==whitePlayer) currentPlayer=blackPlayer;
                         else currentPlayer=whitePlayer;
+
+                        if(currentPlayer.getPieces().size()==0) {
+                            errorMessage.setText("Koniec gry!");
+
+                            if(currentPlayer==whitePlayer) currentPlayer=blackPlayer;
+                            else currentPlayer=whitePlayer;
+                            currentPlayer.getPieces().clear();
+                        }
+                        repaint();
                         if(currentPlayer==whitePlayer) {
                             turnLabel.setText("Turn: WHITE");
                         }else {
                             turnLabel.setText("Turn: BLACK");
                         }
-                        errorMessage.setText("Poprawny ruch, ("+ newRow+' ' + newCol+")");
-                        selectedPiece.setPosition(newCol, newRow);
-                        repaint();
                     }
                     repaint();
                     selectedPiece = null;
@@ -113,19 +124,35 @@ public class Board extends JPanel {
         }
 
         //czy pole nie jest zbyt odlegle
-        if(newCol!=initialX-1 && newCol!=initialX+1)
+        if(!selectedPiece.isKing)
         {
-            if(newCol==initialX-2 || newCol==initialX+2)
+            if(newCol!=initialX-1 && newCol!=initialX+1)
             {
-                if(!checkCapture(newRow,newCol)){
-                    errorMessage.setText("Za dalekie pole!");
+                if(newCol==initialX-2 || newCol==initialX+2)
+                {
+                    if(!checkCapture(newRow,newCol)){
+                        errorMessage.setText("Za dalekie pole!");
+                        return false;
+                    }
+                }else {
+                    errorMessage.setText("Za dalekie pole");
                     return false;
                 }
-            }else {
+            }
+        }else
+        {
+            int xDiffrence = Math.abs(newCol-initialX);
+            int yDiffrence = Math.abs(newRow-initialY);
+
+            if(xDiffrence!=yDiffrence)
+            {
                 errorMessage.setText("Za dalekie pole");
                 return false;
             }
+
+            checkCaptureKing(newRow,newCol);
         }
+
 
         //czy na polu znajduje się pionek
         for (Piece piece : whitePlayer.getPieces())
@@ -163,6 +190,47 @@ public class Board extends JPanel {
         }
         return false;
     }
+    boolean checkCaptureKing(int newRow, int newCol) {
+        int rowStep = newRow > initialY ? 1 : -1;
+        int colStep = newCol > initialX ? 1 : -1;
+        int distance = Math.abs(newRow - initialY);
+
+        Player opponentPlayer = (currentPlayer == whitePlayer) ? blackPlayer : whitePlayer;
+
+        for (int i = 1; i < distance; i++) {
+            int middleRow = initialY + i * rowStep;
+            int middleCol = initialX + i * colStep;
+
+            for (Piece piece : opponentPlayer.getPieces()) {
+                if (piece.isPieceOnThisPosition(middleCol, middleRow)) {
+                    opponentPlayer.getPieces().remove(piece);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    void changeToKing(int newRow)
+    {
+        if(currentPlayer==whitePlayer)
+        {
+            if(newRow==0)
+            {
+                selectedPiece.changeToKing();
+                errorMessage.setText("Pionek staje się damką!");
+            }
+        }else{
+            if(newRow==7)
+            {
+                selectedPiece.changeToKing();
+                errorMessage.setText("Pionek staje się damką!");
+            }
+        }
+    }
+
+
 
     private void drawPieces(Graphics g) {
         for (Piece piece : whitePlayer.getPieces()) {
@@ -175,11 +243,16 @@ public class Board extends JPanel {
             if(piece==selectedPiece)
             {
                 g.setColor(Color.red);
+            }else if(piece.isKing)
+            {
+                g.setColor(Color.yellow);
             }else
             {
                 g.setColor(Color.blue);
             }
             g.fillOval(x + 5, y + 5, SQUARE_SIZE - 10, SQUARE_SIZE - 10);
+
+
 
             //rysowanie pionka
             g.setColor(piece.getColor());
@@ -195,6 +268,9 @@ public class Board extends JPanel {
             if(piece==selectedPiece)
             {
                 g.setColor(Color.red);
+            }else if(piece.isKing)
+            {
+                g.setColor(Color.yellow);
             }else
             {
                 g.setColor(Color.blue);
