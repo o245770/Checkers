@@ -9,34 +9,16 @@ public class Board extends JPanel {
     static final int WIDTH = 8, HEIGHT = 8;
     static final int SQUARE_SIZE = 50;
     private final Square[][] squares = new Square[WIDTH][HEIGHT];
-    List<Piece> pieces = new ArrayList<>();
+    Player whitePlayer;
+    Player blackPlayer;
+    Player currentPlayer;
     private Piece selectedPiece;
     private int initialX, initialY;
     public JLabel errorMessage;
-    int turn;
     public JLabel turnLabel;
 
-    private void initializePieces() {
-        // początkowe ustawienie pionków na planszy
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 8; col++) {
-                if ((row + col) % 2 == 1) {
-                    pieces.add(new Piece(col, row, Color.black));
-                }
-            }
-        }
-
-        for (int row = 5; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                if ((row + col) % 2 == 1) {
-                    pieces.add(new Piece(col, row, Color.white));
-                }
-            }
-        }
-    }
 
     Board() {
-        turn = 0;
         errorMessage = new JLabel("Start");
         turnLabel = new JLabel("Turn: WHITE");
         selectedPiece = null;
@@ -46,7 +28,9 @@ public class Board extends JPanel {
                 squares[i][j] = new Square((i + j) % 2 == 0 ? Color.white : Color.black, j, i);
             }
         }
-        initializePieces(); //inicjalizacja pionków
+        whitePlayer = new Player(Color.white);
+        blackPlayer = new Player(Color.black);
+        currentPlayer = whitePlayer;
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -54,18 +38,18 @@ public class Board extends JPanel {
                 if(selectedPiece == null) {
                     int x = e.getX();
                     int y = e.getY();
-                    for (Piece piece : pieces) {
+                    for (Piece piece : currentPlayer.getPieces()) {
                         //środek pionka
                         int pieceX = piece.getCol() * SQUARE_SIZE + SQUARE_SIZE / 2;
                         int pieceY = piece.getRow() * SQUARE_SIZE + SQUARE_SIZE / 2;
                         int distance = (int) Math.sqrt(Math.pow(pieceX - x, 2) + Math.pow(pieceY - y, 2));
                         if (distance < SQUARE_SIZE / 2) {
-                            if(piece.getColor() == Color.white && turn%2==1) {
+                            if(piece.getColor() == Color.white && currentPlayer==blackPlayer) {
                                 errorMessage.setText("To jest kolejka czarnych!");
                                 repaint();
                                 break;
                             }
-                            if(piece.getColor() == Color.black && turn%2==0) {
+                            if(piece.getColor() == Color.black && currentPlayer==whitePlayer) {
                                 errorMessage.setText("To jest kolejka białych!");
                                 repaint();
                                 break;
@@ -84,8 +68,9 @@ public class Board extends JPanel {
                     int newRow = (y/ SQUARE_SIZE);
                     int newCol = (x/ SQUARE_SIZE);
                     if (isValidMove(newRow, newCol)) {
-                        turn++;
-                        if(turn % 2 == 0) {
+                        if(currentPlayer==whitePlayer) currentPlayer=blackPlayer;
+                        else currentPlayer=whitePlayer;
+                        if(currentPlayer==whitePlayer) {
                             turnLabel.setText("Turn: WHITE");
                         }else {
                             turnLabel.setText("Turn: BLACK");
@@ -143,7 +128,7 @@ public class Board extends JPanel {
         }
 
         //czy na polu znajduje się pionek
-        for (Piece piece : pieces)
+        for (Piece piece : whitePlayer.getPieces())
         {
             if(piece.isPieceOnThisPosition(newCol,newRow) && piece!=selectedPiece)
             {
@@ -151,18 +136,28 @@ public class Board extends JPanel {
                 return false;
             }
         }
-
+        for (Piece piece : blackPlayer.getPieces())
+        {
+            if(piece.isPieceOnThisPosition(newCol,newRow) && piece!=selectedPiece)
+            {
+                errorMessage.setText("Na polu znajduje sie pionek");
+                return false;
+            }
+        }
         return true;
     }
 
     boolean checkCapture(int newRow, int newCol) {
         int middleRow = (newRow+initialY)/2;
         int middleCol = (newCol+initialX)/2;
-        for(Piece piece : pieces)
+        Player opponentPlayer;
+        if(currentPlayer==whitePlayer) opponentPlayer = blackPlayer;
+        else opponentPlayer = whitePlayer;
+        for(Piece piece : opponentPlayer.getPieces())
         {
             if(piece.isPieceOnThisPosition(middleCol,middleRow))
             {
-                pieces.remove(piece);
+                opponentPlayer.getPieces().remove(piece);
                 return true;
             }
         }
@@ -170,7 +165,7 @@ public class Board extends JPanel {
     }
 
     private void drawPieces(Graphics g) {
-        for (Piece piece : pieces) {
+        for (Piece piece : whitePlayer.getPieces()) {
 
             g.setColor(piece.getColor());
             int x = piece.getCol() * SQUARE_SIZE;
@@ -189,8 +184,27 @@ public class Board extends JPanel {
             //rysowanie pionka
             g.setColor(piece.getColor());
             g.fillOval(x + 10, y + 10, SQUARE_SIZE - 20, SQUARE_SIZE - 20);
+        }
+        for (Piece piece : blackPlayer.getPieces()) {
 
-       }
+            g.setColor(piece.getColor());
+            int x = piece.getCol() * SQUARE_SIZE;
+            int y = piece.getRow() * SQUARE_SIZE;
+
+            //obramowanie
+            if(piece==selectedPiece)
+            {
+                g.setColor(Color.red);
+            }else
+            {
+                g.setColor(Color.blue);
+            }
+            g.fillOval(x + 5, y + 5, SQUARE_SIZE - 10, SQUARE_SIZE - 10);
+
+            //rysowanie pionka
+            g.setColor(piece.getColor());
+            g.fillOval(x + 10, y + 10, SQUARE_SIZE - 20, SQUARE_SIZE - 20);
+        }
     }
 
     public static void main(String[] args) {

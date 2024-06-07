@@ -60,7 +60,7 @@ public class CheckersGame {
     private void updateTimeLabels() {
         long elapsedTime = (System.currentTimeMillis() - startTime) / 1000; // Czas od rozpoczęcia gry w sekundach
 
-        if(board.turn%2==0)
+        if(board.currentPlayer==board.whitePlayer)
         {
             whitePlayersTime += 1;
         }else
