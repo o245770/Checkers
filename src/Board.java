@@ -123,6 +123,25 @@ public class Board extends JPanel {
             return false;
         }
 
+        //czy pionek się cofa
+        if(!selectedPiece.isKing)
+        {
+            if(currentPlayer.playersColor == Color.white)
+            {
+                if(initialY<newRow)
+                {
+                    errorMessage.setText("Pionek nie może się cofać");
+                    return false;
+                }
+            }else{
+                if(initialY>newRow)
+                {
+                    errorMessage.setText("Pionek nie może się cofać");
+                    return false;
+                }
+            }
+        }
+
         //czy pole nie jest zbyt odlegle
         if(!selectedPiece.isKing)
         {
